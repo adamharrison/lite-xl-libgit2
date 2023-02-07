@@ -1,0 +1,31 @@
+{
+  "addons": [
+    {
+      "id": "libgit2",
+      "type": "library",
+      "description": "A supporting library which provides out of the box support for using libgit2 with lite-xl.",
+      "files": [
+        {
+          "url": "https://github.com/adamharrison/lite-xl-libgit2/releases/download/latest/libgit2.x86_64-linux.so",
+          "arch": "x86_64-linux",
+          "checksum": "SKIP"
+        },
+        {
+          "url": "https://github.com/adamharrison/lite-xl-libgit2/releases/download/latest/libgit2.x86_64-windows.dll",
+          "arch": "x86_64-windows",
+          "checksum": "SKIP"
+        },
+        {
+          "url": "https://github.com/adamharrison/lite-xl-libgit2/releases/download/latest/libgit2.x86_64-darwin.so",
+          "arch": "x86_64-darwin",
+          "checksum": "SKIP"
+        },
+        {
+          "url": "https://github.com/adamharrison/lite-xl-libgit2/releases/download/latest/libgit2.aarch64-darwin.so",
+          "arch": "aarch64-darwin",
+          "checksum": "SKIP"
+        }
+      ]
+    }
+  ]
+}
