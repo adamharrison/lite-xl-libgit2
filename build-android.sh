@@ -3,10 +3,10 @@
 [[ ! -d "$ANDROID_NDK_HOME" ]] && echo "Please supply an ANDROID_NDK_HOME." && exit -1
 [[ $ANDROID_ARCH == "" ]] && echo "Please supply an ANDROID_ARCH." && exit -1
 [[ $ANDROID_ABI_VERSION == "" ]] && export ANDROID_ABI_VERSION=21
-[[ $ANDROID_ARCH == 'aarch64' ]] && export ANDROID_CMAKE_ARCH=arm64-v8a &&   export ANDROID_COMPILER_ARCH=aarc64 && export ANDROID_COMPILER_SUFFIX=""
-[[ $ANDROID_ARCH == 'armv7a'  ]] && export ANDROID_CMAKE_ARCH=armeabi-v7a && export ANDROID_COMPILER_ARCH=armv7a && export ANDROID_COMPILER_SUFFIX="eabi"
-[[ $ANDROID_ARCH == 'x86_64'  ]] && export ANDROID_CMAKE_ARCH=x86_64 &&      export ANDROID_COMPILER_ARCH=x86_64 && export ANDROID_COMPILER_SUFFIX=""
-[[ $ANDROID_ARCH == 'x86'     ]] && export ANDROID_CMAKE_ARCH=x86 &&         export ANDROID_COMPILER_ARCH=i686 &&   export ANDROID_COMPILER_SUFFIX=""
+[[ $ANDROID_ARCH == 'aarch64' ]] && export ANDROID_CMAKE_ARCH=arm64-v8a &&   export ANDROID_COMPILER_ARCH=aarch64 && export ANDROID_COMPILER_SUFFIX=""
+[[ $ANDROID_ARCH == 'armv7a'  ]] && export ANDROID_CMAKE_ARCH=armeabi-v7a && export ANDROID_COMPILER_ARCH=armv7a &&  export ANDROID_COMPILER_SUFFIX="eabi"
+[[ $ANDROID_ARCH == 'x86_64'  ]] && export ANDROID_CMAKE_ARCH=x86_64 &&      export ANDROID_COMPILER_ARCH=x86_64 &&  export ANDROID_COMPILER_SUFFIX=""
+[[ $ANDROID_ARCH == 'x86'     ]] && export ANDROID_CMAKE_ARCH=x86 &&         export ANDROID_COMPILER_ARCH=i686 &&    export ANDROID_COMPILER_SUFFIX=""
 
 CC="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/$ANDROID_COMPILER_ARCH-linux-android$ANDROID_COMPILER_SUFFIX$ANDROID_ABI_VERSION-clang"\
   AR="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar"\
