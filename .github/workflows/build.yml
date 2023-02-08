@@ -1,0 +1,45 @@
+name: CI
+on: { push: { branches: [master] } }
+jobs:
+  build_linux_windows_android:
+    runs-on: ubuntu-latest
+    defaults: { run: { shell: bash } }
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with: { fetch-depth: 0 }
+      - uses: nttld/setup-ndk@v1
+        id: setup-ndk
+        with:
+          ndk-version: r21e
+          add-to-path: false
+      - env: { ANDROID_NDK_HOME: "${{ steps.setup-ndk.outputs.ndk-path }}", GITHUB_TOKEN: "${{ github.token }}" }
+        run: |
+          git config --global user.name "Github Actions" && git config --global user.email "adamdharrison@gmail.com"
+          rm -rf bin && mkdir bin &&
+            ./build.sh clean && BIN="bin/libgit2.x86_64-linux.so" ./build.sh &&
+            ./build.sh clean && CFLAGS="-m32" BIN="bin/libgit2.x86-linux.so" ./build.sh &&
+            ./build.sh clean && BIN=bin/libgit2.x86_64-windows.dll CC=x86_64-w64-mingw32-gcc AR=x86_64-w64-mingw32-gcc-ar \
+                CMAKE_DEFAULT_FLAGS="-DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=NEVER -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=NEVER -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_SYSTEM_INCLUDE_PATH=/usr/share/mingw-w64/include"\
+                GIT2_CONFIGURE="-DDLLTOOL=x86_64-w64-mingw32-dlltool" ./build.sh &&
+            ./build.sh clean && BIN=bin/libgit2.x86-windows.dll CC=i686-w64-mingw32-gcc AR=i686-w64-mingw32-gcc-ar \
+                CMAKE_DEFAULT_FLAGS="-DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=NEVER -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=NEVER -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_SYSTEM_INCLUDE_PATH=/usr/share/mingw-w64/include"\
+                GIT2_CONFIGURE="-DDLLTOOL=x86_64-w64-mingw32-dlltool" ./build.sh &&
+            ./build.sh clean && ANDROID_ARCH=aarch64 ./build-android.sh &&
+            ./build.sh clean && ANDROID_ARCH=armv7a ./build-android.sh &&
+            ./build.sh clean && ANDROID_ARCH=x86_64 ./build-android.sh &&
+            ./build.sh clean && ANDROID_ARCH=x86 ./build-android.sh
+          if [[ `git tag --points-at HEAD | head -c 1` == "v" ]]; then
+            export VERSION=`git describe --tags --abbrev=0 --match "v*" | tail -c +2`
+            gh release delete -y v$VERSION || true;
+            gh release create -t v$VERSION v$VERSION bin/*
+            gh release delete -y latest || true;
+            gh release create -t latest latest bin/*
+            git branch -f latest HEAD
+            git tag -f latest
+            git push -f origin refs/heads/latest
+            git push -f origin refs/tags/latest
+          fi
+
+
+
