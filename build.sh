@@ -11,7 +11,7 @@ SRCS="src/*.c"
 CFLAGS="$CFLAGS -Ilib/prefix/include -fPIC -Ilib/lite-xl/resources"
 LDFLAGS="$LDFLAGS -lm -Llib/prefix/lib"
 
-[[ "$@" == "clean" ]] && rm -rf lib/libgit2/build lib/zlib/build lib/mbedtls-2.27.0/build lib/prefix $BIN *.exe src/lpm.luac src/lpm.lua.c && exit 0
+[[ "$@" == "clean" ]] && rm -rf lib/libgit2/build lib/zlib/build lib/mbedtls-2.27.0/build lib/prefix *.so && exit 0
 $CMAKE --version >/dev/null 2>/dev/null || { echo "Please ensure that you have cmake installed." && exit -1; }
 
 # Build supporting libraries, libz, libmbedtls, libmbedcrypto, libgit2

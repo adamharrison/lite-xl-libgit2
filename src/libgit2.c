@@ -301,7 +301,7 @@ static int f_git_remote_fetch(lua_State* L) {
   operation->path = git_repository_path(repository);
   operation->complete = 0;
   operation->remote = git_remote_name(remote);
-  if (lua_isyieldable(L)) {
+  if (lua_pushthread(L)) {
     operation->thread = create_thread(git_remote_fetch_callback, operation);
     lua_yieldk(L, 1, 0, f_git_remote_operationk);
   } else
@@ -325,7 +325,7 @@ static int f_git_remote_push(lua_State* L) {
   operation->complete = 0;
   operation->remote = git_remote_name(remote);
   operation->branch = branch;
-  if (lua_isyieldable(L)) {
+  if (lua_pushthread(L)) {
     operation->thread = create_thread(git_remote_push_callback, operation);
     lua_yieldk(L, 1, 0, f_git_remote_operationk);
   } else
