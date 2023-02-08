@@ -1,6 +1,12 @@
 [submodule "lib/libgit2"]
 	path = lib/libgit2
 	url = https://github.com/libgit2/libgit2.git
+	shallow = true
 [submodule "lib/zlib"]
 	path = lib/zlib
 	url = https://github.com/madler/zlib.git
+	shallow = true
+[submodule "lib/lite-xl"]
+	path = lib/lite-xl
+	url = https://github.com/lite-xl/lite-xl.git
+	shallow = true

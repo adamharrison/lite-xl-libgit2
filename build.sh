@@ -8,7 +8,7 @@
 : ${JOBS=4}
 
 SRCS="src/*.c"
-CFLAGS="$CFLAGS -Ilib/prefix/include -fPIC"
+CFLAGS="$CFLAGS -Ilib/prefix/include -fPIC -Ilib/lite-xl/resources"
 LDFLAGS="$LDFLAGS -lm -Llib/prefix/lib"
 
 [[ "$@" == "clean" ]] && rm -rf lib/libgit2/build lib/zlib/build lib/mbedtls-2.27.0/build lib/prefix $BIN *.exe src/lpm.luac src/lpm.lua.c && exit 0

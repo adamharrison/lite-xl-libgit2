@@ -17,13 +17,13 @@
 
 #include <string.h>
 #include <ctype.h>
-#if LITE_XL_PLUGIN
-  #define LITE_XL_PLUGIN_ENTRYPOINT
-  #include <lite_xl_plugin_api.h>
-#else
+#if LIBGIT2_STANDLONE
   #include <lua.h>
   #include <lauxlib.h>
   #include <lualib.h>
+#else
+  #define LITE_XL_PLUGIN_ENTRYPOINT
+  #include <lite_xl_plugin_api.h>
 #endif
 
 /* Contains the following functions:
