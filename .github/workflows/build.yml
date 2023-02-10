@@ -1,5 +1,7 @@
 name: CI
 on: { push: { branches: [main] } }
+permissions:
+  contents: write
 jobs:
   build_linux_windows_android:
     runs-on: ubuntu-latest
