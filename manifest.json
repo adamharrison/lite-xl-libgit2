@@ -42,7 +42,7 @@
         },
         {
           "url": "https://github.com/adamharrison/lite-xl-libgit2/releases/download/latest/libgit2.x86_64-android.so",
-          "arch": "x86-android",
+          "arch": "x86_64-android",
           "checksum": "SKIP"
         }
       ]
