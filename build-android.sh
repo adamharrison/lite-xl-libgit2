@@ -4,7 +4,7 @@
 [[ $ANDROID_ARCH == "" ]] && echo "Please supply an ANDROID_ARCH." && exit -1
 [[ $ANDROID_ABI_VERSION == "" ]] && export ANDROID_ABI_VERSION=26
 [[ $ANDROID_ARCH == 'aarch64' ]] && export ANDROID_CMAKE_ARCH=arm64-v8a &&   export ANDROID_COMPILER_ARCH=aarch64 && export ANDROID_COMPILER_SUFFIX=""
-[[ $ANDROID_ARCH == 'armv7a'  ]] && export ANDROID_CMAKE_ARCH=armeabi-v7a && export ANDROID_COMPILER_ARCH=armv7a &&  export ANDROID_COMPILER_SUFFIX="eabi"
+[[ $ANDROID_ARCH == 'arm'     ]] && export ANDROID_CMAKE_ARCH=armeabi-v7a && export ANDROID_COMPILER_ARCH=armv7a &&  export ANDROID_COMPILER_SUFFIX="eabi"
 [[ $ANDROID_ARCH == 'x86_64'  ]] && export ANDROID_CMAKE_ARCH=x86_64 &&      export ANDROID_COMPILER_ARCH=x86_64 &&  export ANDROID_COMPILER_SUFFIX=""
 [[ $ANDROID_ARCH == 'x86'     ]] && export ANDROID_CMAKE_ARCH=x86 &&         export ANDROID_COMPILER_ARCH=i686 &&    export ANDROID_COMPILER_SUFFIX=""
 

@@ -33,7 +33,7 @@ jobs:
                 CMAKE_DEFAULT_FLAGS="-DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=NEVER -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=NEVER -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_SYSTEM_INCLUDE_PATH=/usr/share/mingw-w64/include"\
                 GIT2_CONFIGURE="-DDLLTOOL=x86_64-w64-mingw32-dlltool" ./build.sh &&
             ./build.sh clean && ANDROID_ARCH=aarch64 ./build-android.sh &&
-            ./build.sh clean && ANDROID_ARCH=armv7a ./build-android.sh &&
+            ./build.sh clean && ANDROID_ARCH=arm ./build-android.sh &&
             ./build.sh clean && ANDROID_ARCH=x86_64 ./build-android.sh &&
             ./build.sh clean && ANDROID_ARCH=x86 ./build-android.sh || exit -1
           if [[ `git tag --points-at HEAD | head -c 1` == "v" ]]; then
