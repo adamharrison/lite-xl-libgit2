@@ -23,25 +23,24 @@ jobs:
         run: |
           git config --global user.name "Github Actions" && git config --global user.email "adamdharrison@gmail.com"
           sudo apt-get install -y gcc-multilib mingw-w64
-          rm -rf bin && mkdir bin &&
-            ./build.sh clean && BIN="bin/libgit2.x86_64-linux.so" ./build.sh &&
-            ./build.sh clean && CFLAGS="-m32" BIN="bin/libgit2.x86-linux.so" ./build.sh &&
-            ./build.sh clean && BIN=bin/libgit2.x86_64-windows.dll CC=x86_64-w64-mingw32-gcc AR=x86_64-w64-mingw32-gcc-ar \
-                CMAKE_DEFAULT_FLAGS="-DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=NEVER -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=NEVER -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_SYSTEM_INCLUDE_PATH=/usr/share/mingw-w64/include"\
-                GIT2_CONFIGURE="-DDLLTOOL=x86_64-w64-mingw32-dlltool" ./build.sh &&
-            ./build.sh clean && BIN=bin/libgit2.x86-windows.dll CC=i686-w64-mingw32-gcc AR=i686-w64-mingw32-gcc-ar \
-                CMAKE_DEFAULT_FLAGS="-DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=NEVER -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=NEVER -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_SYSTEM_INCLUDE_PATH=/usr/share/mingw-w64/include"\
-                GIT2_CONFIGURE="-DDLLTOOL=x86_64-w64-mingw32-dlltool" ./build.sh &&
-            ./build.sh clean && ANDROID_ARCH=aarch64 ./build-android.sh &&
-            ./build.sh clean && ANDROID_ARCH=arm ./build-android.sh &&
-            ./build.sh clean && ANDROID_ARCH=x86_64 ./build-android.sh &&
-            ./build.sh clean && ANDROID_ARCH=x86 ./build-android.sh || exit -1
+          ./build.sh clean && BIN="libgit2.x86_64-linux.so" ./build.sh &&
+          ./build.sh clean && CFLAGS="-m32" BIN="libgit2.x86-linux.so" ./build.sh &&
+          ./build.sh clean && BIN=libgit2.x86_64-windows.dll CC=x86_64-w64-mingw32-gcc AR=x86_64-w64-mingw32-gcc-ar \
+              CMAKE_DEFAULT_FLAGS="-DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=NEVER -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=NEVER -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_SYSTEM_INCLUDE_PATH=/usr/share/mingw-w64/include"\
+              GIT2_CONFIGURE="-DDLLTOOL=x86_64-w64-mingw32-dlltool" ./build.sh &&
+          ./build.sh clean && BIN=libgit2.x86-windows.dll CC=i686-w64-mingw32-gcc AR=i686-w64-mingw32-gcc-ar \
+              CMAKE_DEFAULT_FLAGS="-DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=NEVER -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=NEVER -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_SYSTEM_INCLUDE_PATH=/usr/share/mingw-w64/include"\
+              GIT2_CONFIGURE="-DDLLTOOL=x86_64-w64-mingw32-dlltool" ./build.sh &&
+          ./build.sh clean && ANDROID_ARCH=aarch64 ./build-android.sh &&
+          ./build.sh clean && ANDROID_ARCH=arm ./build-android.sh &&
+          ./build.sh clean && ANDROID_ARCH=x86_64 ./build-android.sh &&
+          ./build.sh clean && ANDROID_ARCH=x86 ./build-android.sh || exit -1
           if [[ `git tag --points-at HEAD | head -c 1` == "v" ]]; then
             export VERSION=`git describe --tags --abbrev=0 --match "v*" | tail -c +2`
             gh release delete -y v$VERSION || true;
-            gh release create -t v$VERSION v$VERSION bin/*
+            gh release create -t v$VERSION v$VERSION *.so *.dll
             gh release delete -y latest || true;
-            gh release create -t latest latest bin/*
+            gh release create -t latest latest *.so *.dll
             git branch -f latest HEAD
             git tag -f latest
             git push -f origin refs/heads/latest
