@@ -577,10 +577,10 @@ static luaL_Reg plugin_api[] = {
 };
 
 #if LITE_XL_PLUGIN
-int luaopen_lite_xl_gitsave(lua_State* L, void* XL) {
+int luaopen_lite_xl_libgit2(lua_State* L, void* XL) {
   lite_xl_plugin_init(XL);
 #else
-int luaopen_gitsave(lua_State* L) {
+int luaopen_libgit2(lua_State* L) {
 #endif
   git_libgit2_init();
   #if defined(MBEDTLS_DEBUG_C)

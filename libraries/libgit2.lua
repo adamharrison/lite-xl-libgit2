@@ -1,7 +1,7 @@
 -- mod-version: 3 -- lite-xl 2.1
 local common = require "core.common"
 local config = require "core.config"
-local native = "plugins.libgit2.native"
+local native = require "libraries.libgit2.libgit2"
 
 local libgit2 = common.merge({}, native)
 
@@ -32,10 +32,12 @@ else
   if PLATFORM == "windows" then
     libgit2.certs("system", USERDIR .. PATHSEP .. "certs.crt")
   else
+    local has_certs = false
     for i, path in ipairs(paths) do
       local stat = system.get_file_info(path)
       if stat then
         libgit2.certs(stat.type, path)
+        has_certs = true
         break
       end
     end
