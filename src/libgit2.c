@@ -576,7 +576,7 @@ static luaL_Reg plugin_api[] = {
   { NULL, NULL }
 };
 
-#if LITE_XL_PLUGIN
+#ifndef LIBGIT2_STANDLONE
 int luaopen_lite_xl_libgit2(lua_State* L, void* XL) {
   lite_xl_plugin_init(XL);
 #else
