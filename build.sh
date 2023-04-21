@@ -8,7 +8,7 @@
 : ${JOBS=4}
 
 SRCS="src/*.c"
-CFLAGS="$CFLAGS -Ilib/prefix/include -fPIC -Ilib/lite-xl/resources"
+CFLAGS="$CFLAGS -Ilib/prefix/include -fPIC -Ilib/lite-xl/resources -static-libgcc"
 LDFLAGS="$LDFLAGS -lm -Llib/prefix/lib"
 
 [[ "$@" == "clean" ]] && rm -rf lib/libgit2/build lib/zlib/build lib/mbedtls-2.27.0/build lib/prefix *.so && exit 0
