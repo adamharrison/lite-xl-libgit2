@@ -29,7 +29,7 @@ else
     "/etc/openssl/certs",                                -- NetBSD
     "/var/ssl/certs",                                    -- AIX
   }
-  if PLATFORM == "windows" then
+  if PLATFORM == "Windows" then
     libgit2.certs("system", USERDIR .. PATHSEP .. "certs.crt")
   else
     local has_certs = false
