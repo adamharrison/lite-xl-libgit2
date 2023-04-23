@@ -231,6 +231,7 @@ typedef struct {
   const char* branch;
   thread_t* thread;
   volatile int complete;
+  char error[512];
 } operation_t;
 
 static int credential_callback(git_credential** out, const char* url, const char* username_from_url, unsigned int allowed_types, void* payload) {
@@ -242,17 +243,25 @@ static int credential_callback(git_credential** out, const char* url, const char
 static void* git_remote_fetch_callback(void* data) {
   operation_t* operation = (operation_t*)data;
   git_repository* repository;
-  git_repository_open(&repository, operation->path);
+  if (git_repository_open(&repository, operation->path)) {
+    strncpy(operation->error, git_error_last_string(), sizeof(operation->error));
+    return (void*)-1LL;
+  }
   git_remote* remote;
-  git_remote_lookup(&remote, repository, operation->remote);
+  if (git_remote_lookup(&remote, repository, operation->remote)) {
+    strncpy(operation->error, git_error_last_string(), sizeof(operation->error));
+    return (void*)-1LL;
+  }
   git_fetch_options fetch_opts = GIT_FETCH_OPTIONS_INIT;
   fetch_opts.callbacks.credentials = credential_callback;
   fetch_opts.callbacks.payload = operation;
-  int success = git_remote_fetch(remote, NULL, &fetch_opts, NULL);
+  int code = git_remote_fetch(remote, NULL, &fetch_opts, NULL);
+  if (code)
+    strncpy(operation->error, git_error_last_string(), sizeof(operation->error));
   operation->complete = 1;
   git_remote_free(remote);
   git_repository_free(repository);
-  return success ? (void*)1 : NULL;
+  return (void*)(long long)code;
 }
 
 
@@ -268,24 +277,35 @@ static void* git_remote_push_callback(void* data) {
   git_strarray array;
   array.strings = (char**)&operation->branch;
   array.count = 1;
-  int success = git_remote_push(remote, &array, &push_opts);
+  int code = git_remote_push(remote, &array, &push_opts);
+  if (code)
+    strncpy(operation->error, git_error_last_string(), sizeof(operation->error));
   git_remote_free(remote);
   git_repository_free(repository);
   operation->complete = 1;
-  return success ? (void*)1 : NULL;
+  return (void*)(long long)code;
 }
 
 static int f_git_remote_operationk(lua_State* L, int status, lua_KContext ctx) {
+  lua_rawgeti(L, LUA_REGISTRYINDEX, (int)ctx);
   operation_t* operation = (operation_t*)lua_touserdata(L, -1);
   if (operation->complete) {
+    luaL_unref(L, LUA_REGISTRYINDEX, (int)ctx);
     close_thread(operation->thread);
+    if (operation->error[0])
+      return luaL_error(L, "git remote operation error: %s", operation->error);
     return 0;
   }
   lua_pushnumber(L, 0.05);
-  lua_yieldk(L, 1, 0, f_git_remote_operationk);
+  lua_yieldk(L, 1, ctx, f_git_remote_operationk);
   return 0;
 }
 
+static int lua_ismainthread(lua_State* L) {
+  int is_main = lua_pushthread(L);
+  lua_pop(L, 1);
+  return is_main;
+}
 
 static int f_git_remote_fetch(lua_State* L) {
   git_remote* remote = luaL_checkinternal(L, 1, API_GIT_REMOTE);
@@ -300,12 +320,17 @@ static int f_git_remote_fetch(lua_State* L) {
   operation->password = luaL_checkstring(L, -2);
   operation->path = git_repository_path(repository);
   operation->complete = 0;
+  operation->error[0] = 0;
   operation->remote = git_remote_name(remote);
-  if (lua_pushthread(L)) {
+  if (!lua_ismainthread(L)) {
     operation->thread = create_thread(git_remote_fetch_callback, operation);
-    lua_yieldk(L, 1, 0, f_git_remote_operationk);
-  } else
-    git_remote_fetch_callback(&operation);
+    int r = luaL_ref(L, LUA_REGISTRYINDEX);
+    lua_pushnumber(L, 0.05);
+    lua_yieldk(L, 1, (lua_KContext)r, f_git_remote_operationk);
+  } else {
+    if (git_remote_fetch_callback(&operation))
+      return luaL_error(L, "git remote operation error: %s", operation->error);
+  }
   return 0;
 }
 
@@ -323,13 +348,18 @@ static int f_git_remote_push(lua_State* L) {
   operation->password = luaL_checkstring(L, -2);
   operation->path = git_repository_path(repository);
   operation->complete = 0;
+  operation->error[0] = 0;
   operation->remote = git_remote_name(remote);
   operation->branch = branch;
-  if (lua_pushthread(L)) {
+  if (!lua_ismainthread(L)) {
     operation->thread = create_thread(git_remote_push_callback, operation);
-    lua_yieldk(L, 1, 0, f_git_remote_operationk);
-  } else
-    git_remote_push_callback(&operation);
+    int r = luaL_ref(L, LUA_REGISTRYINDEX);
+    lua_pushnumber(L, 0.05);
+    lua_yieldk(L, 1, (lua_KContext)r, f_git_remote_operationk);
+  } else {
+    if (git_remote_push_callback(&operation))
+      return luaL_error(L, "git remote operation error: %s", operation->error);
+  }
   return 0;
 }
 
@@ -550,6 +580,22 @@ static int f_git_certs(lua_State* L) {
   return 0;
 }
 
+static void f_git_trace_callback(git_trace_level_t level, const char* msg) {
+  fprintf(stderr, "%s\n", msg);
+}
+
+static int f_git_trace(lua_State* L) {
+  const char* level = luaL_checkstring(L, 1);
+  if      (strcmp(level, "none") == 0)  git_trace_set(GIT_TRACE_NONE, f_git_trace_callback);
+  else if (strcmp(level, "fatal") == 0) git_trace_set(GIT_TRACE_FATAL, f_git_trace_callback);
+  else if (strcmp(level, "error") == 0) git_trace_set(GIT_TRACE_ERROR, f_git_trace_callback);
+  else if (strcmp(level, "warn") == 0)  git_trace_set(GIT_TRACE_WARN, f_git_trace_callback);
+  else if (strcmp(level, "info") == 0)  git_trace_set(GIT_TRACE_INFO, f_git_trace_callback);
+  else if (strcmp(level, "debug") == 0) git_trace_set(GIT_TRACE_DEBUG, f_git_trace_callback);
+  else if (strcmp(level, "trace") == 0) git_trace_set(GIT_TRACE_TRACE, f_git_trace_callback);
+  else return luaL_error(L, "unknown trace level %s", level);
+}
+
 luaL_Reg remote_metatable[] = {
   { "__gc",       f_git_remote_gc },
   { "push",       f_git_remote_push },
@@ -573,6 +619,7 @@ static luaL_Reg plugin_api[] = {
   { "__gc",       f_git_gc },
   { "open",       f_git_open },
   { "certs",      f_git_certs },
+  { "trace",      f_git_trace },
   { NULL, NULL }
 };
 
